@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>ChatBot</title>
+  </head>
+  <body class="bg-neutral-900 text-white overflow-x-hidden">
+    <div class="container mx-auto max-w-3xl pb-40 px-2" id="chat-container">
+      <!-- Messages goes here  -->
+
+      <!-- User messages  -->
+
+      <!-- Assistant message  -->
+      <!-- <div class="max-w-fit">i am fine how are you</div> -->
+
+      <!-- Bottom textarea goes area  -->
+      <div class="fixed bottom-0 inset-x-0 flex justify-center bg-neutral-900">
+        <div
+          class="bg-neutral-800 p-2 rounded-3xl w-full max-w-3xl mx-auto mb-4"
+        >
+          <textarea
+            class="w-full resize-none outline-0 p-3"
+            rows="2"
+            id="input"
+          ></textarea>
+
+          <div class="flex justify-end items-center">
+            <button
+              class="bg-white px-4 py-1 text-black rounded-full cursor-pointer hover:bg-gray-300"
+              id="ask"
+            >
+              Ask
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="./script.js"></script>
+  </body>
+</html>
