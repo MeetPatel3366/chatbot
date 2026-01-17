@@ -7,6 +7,10 @@ askBtn.addEventListener("click", handleAsk);
 
 const PORT = 3001;
 
+const loading = document.createElement("div");
+loading.className = "my-6 animate-pulse";
+loading.textContent = "Thinking...";
+
 async function generate(text) {
   /**
    *  1.append message to ui
@@ -20,6 +24,8 @@ async function generate(text) {
   chatContainer.appendChild(msgElem);
   input.value = "";
 
+  chatContainer.appendChild(loading);
+
   //call server
   const assistantMessage = await callServer(text);
   console.log("Assistant Message: ", assistantMessage);
@@ -27,7 +33,12 @@ async function generate(text) {
   const assistantMsgElem = document.createElement("div");
   assistantMsgElem.className = "max-w-fit";
   assistantMsgElem.textContent = assistantMessage;
+
+  loading.remove();
   chatContainer.appendChild(assistantMsgElem);
+
+  assistantMsgElem.textContent = "";
+  typeWriter(assistantMsgElem, assistantMessage);
 }
 
 async function callServer(inputText) {
@@ -71,4 +82,17 @@ async function handleEnter(e) {
 
     await generate(text);
   }
+}
+
+function typeWriter(element, text, speed = 20) {
+  let index = 0;
+
+  function type() {
+    if (index < text.length) {
+      element.textContent += text.charAt(index);
+      index++;
+      setTimeout(type, speed);
+    }
+  }
+  type();
 }
