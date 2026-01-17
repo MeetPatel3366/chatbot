@@ -7,16 +7,31 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const messages = [
   {
     role: "system",
-    content: `You are s samrt personal assistant who answers the asked questions.
-        You have access to following tools:
-        1. searchWeb({query}: {query:string}) //Search the latest information and realtime data on the internet
-        Current Date And Time: ${new Date().toUTCString()}`,
+    content: `You are a smart personal assistant.
+    If you know the answer to a question, asnwer it directly in plain English.
+    If the answer requires real-time, local, or up-to-date information, or if you don't know the answer, use teh available tools to find it.
+    You have access to following tools:
+    webSearch(query: string) Use this to search the internet for current or unknown information.
+    Decide when to use your own knowledge and when to use the tool.
+    Do not mention the tool unless needed.
+
+    Example:
+    Q: What is the capital of India?
+    A: The capital of India is New Delhi.
+
+    Q: What is teh weather in Mumbai right now?
+    A: (use the search tool to find the latest weather)
+
+    Q: Tell me the latest IT news.
+    A: (use the search tool to get the latest news)
+    
+    Current Date And Time: ${new Date().toUTCString()}`,
   },
 ];
 
 async function getGroqChatCompletion() {
   console.log(
-    "-------------------------------------------------------------------------"
+    "-------------------------------------------------------------------------",
   );
   console.log("message sent: ", messages);
   console.log("message length: ", messages.length);
