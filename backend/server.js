@@ -1,10 +1,12 @@
 import express from "express";
+import cors from "cors";
 import { generate } from "./chatbot.js";
 
 const app = express();
 const port = process.env.PORT;
 
 app.use(express.json());
+app.use(cors());
 
 app.get("/", (req, res) => {
   res.send("Welcome to ChatBot");
@@ -20,7 +22,7 @@ app.post("/chat", async (req, res) => {
     });
   }
   const result = await generate(userMessage);
-  res.json({
+  res.status(200).json({
     success: true,
     message: result,
   });

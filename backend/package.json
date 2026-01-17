@@ -13,6 +13,7 @@
   "type": "module",
   "dependencies": {
     "@tavily/core": "^0.7.1",
+    "cors": "^2.8.5",
     "express": "^5.2.1",
     "groq-sdk": "^0.37.0"
   }

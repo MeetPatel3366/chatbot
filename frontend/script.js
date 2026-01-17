@@ -5,32 +5,62 @@ const askBtn = document.querySelector("#ask");
 input.addEventListener("keyup", handleEnter);
 askBtn.addEventListener("click", handleAsk);
 
-function generate(text) {
+const PORT = 3001;
+
+async function generate(text) {
   /**
    *  1.append message to ui
    *  2.send it to the LLM
    *  3.Append resppnse to the ui
    */
 
-  const msg = document.createElement("div");
-  msg.className = "my-6 bg-neutral-800 p-3 rounded-xl ml-auto max-w-fit";
-  msg.textContent = text;
-  chatContainer.appendChild(msg);
-
+  const msgElem = document.createElement("div");
+  msgElem.className = "my-6 bg-neutral-800 p-3 rounded-xl ml-auto max-w-fit";
+  msgElem.textContent = text;
+  chatContainer.appendChild(msgElem);
   input.value = "";
+
+  //call server
+  const assistantMessage = await callServer(text);
+  console.log("Assistant Message: ", assistantMessage);
+
+  const assistantMsgElem = document.createElement("div");
+  assistantMsgElem.className = "max-w-fit";
+  assistantMsgElem.textContent = assistantMessage;
+  chatContainer.appendChild(assistantMsgElem);
 }
 
-function handleAsk(e) {
+async function callServer(inputText) {
+  const response = await fetch(`http://localhost:${PORT}/chat`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      userMessage: inputText,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Error generating the response");
+  }
+
+  const result = await response.json();
+
+  return result.message;
+}
+
+async function handleAsk(e) {
   const text = input?.value.trim();
   if (!text) {
     return;
   }
   console.log(text);
 
-  generate(text);
+  await generate(text);
 }
 
-function handleEnter(e) {
+async function handleEnter(e) {
   if (e.key == "Enter") {
     console.log(e);
     const text = input?.value.trim();
@@ -39,6 +69,6 @@ function handleEnter(e) {
     }
     console.log(text);
 
-    generate(text);
+    await generate(text);
   }
 }
