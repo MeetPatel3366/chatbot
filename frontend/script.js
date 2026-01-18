@@ -2,6 +2,10 @@ const input = document.querySelector("#input");
 const chatContainer = document.querySelector("#chat-container");
 const askBtn = document.querySelector("#ask");
 
+const conversationId =
+  Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
+console.log("conversationId : ", conversationId);
+
 input.addEventListener("keyup", handleEnter);
 askBtn.addEventListener("click", handleAsk);
 
@@ -49,6 +53,7 @@ async function callServer(inputText) {
     },
     body: JSON.stringify({
       userMessage: inputText,
+      conversationId,
     }),
   });
 

@@ -1,41 +1,13 @@
 import Groq from "groq-sdk";
 import { tavily } from "@tavily/core";
+import NodeCache from "node-cache";
 
 const tvly = tavily({ apiKey: process.env.TAVILY_API_KEY });
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-const messages = [
-  {
-    role: "system",
-    content: `You are a smart personal assistant.
-    If you know the answer to a question, asnwer it directly in plain English.
-    If the answer requires real-time, local, or up-to-date information, or if you don't know the answer, use teh available tools to find it.
-    You have access to following tools:
-    webSearch(query: string) Use this to search the internet for current or unknown information.
-    Decide when to use your own knowledge and when to use the tool.
-    Do not mention the tool unless needed.
+const cache = new NodeCache({ stdTTL: 60 * 60 * 24 }); //24 hours
 
-    Example:
-    Q: What is the capital of India?
-    A: The capital of India is New Delhi.
-
-    Q: What is teh weather in Mumbai right now?
-    A: (use the search tool to find the latest weather)
-
-    Q: Tell me the latest IT news.
-    A: (use the search tool to get the latest news)
-    
-    Current Date And Time: ${new Date().toUTCString()}`,
-  },
-];
-
-async function getGroqChatCompletion() {
-  console.log(
-    "-------------------------------------------------------------------------",
-  );
-  console.log("message sent: ", messages);
-  console.log("message length: ", messages.length);
-
+async function getGroqChatCompletion(messages) {
   return groq.chat.completions.create({
     temperature: 0,
     model: "llama-3.3-70b-versatile",
@@ -64,14 +36,47 @@ async function getGroqChatCompletion() {
   });
 }
 
-export async function generate(userMessage) {
+export async function generate(userMessage, conversationId) {
+  const baseMessages = [
+    {
+      role: "system",
+      content: `You are a smart personal assistant.
+    If you know the answer to a question, asnwer it directly in plain English.
+    If the answer requires real-time, local, or up-to-date information, or if you don't know the answer, use teh available tools to find it.
+    You have access to following tools:
+    webSearch(query: string) Use this to search the internet for current or unknown information.
+    Decide when to use your own knowledge and when to use the tool.
+    Do not mention the tool unless needed.
+
+    Example:
+    Q: What is the capital of India?
+    A: The capital of India is New Delhi.
+
+    Q: What is teh weather in Mumbai right now?
+    A: (use the search tool to find the latest weather)
+
+    Q: Tell me the latest IT news.
+    A: (use the search tool to get the latest news)
+    
+    Current Date And Time: ${new Date().toUTCString()}`,
+    },
+  ];
+
+  const messages = cache.get(conversationId) ?? baseMessages;
+
+  console.log(
+    "-------------------------------------------------------------------------",
+  );
+  console.log("message sent: ", messages);
+  console.log("message length: ", messages.length);
+
   messages.push({
     role: "user",
     content: userMessage,
   });
   while (true) {
     //for llm loop for tools calling
-    const chatCompletion = await getGroqChatCompletion();
+    const chatCompletion = await getGroqChatCompletion(messages);
 
     messages.push(chatCompletion?.choices[0]?.message); //assistant message
 
@@ -81,6 +86,9 @@ export async function generate(userMessage) {
     const toolCalls = chatCompletion.choices[0].message.tool_calls;
 
     if (!toolCalls) {
+      cache.set(conversationId, messages);
+      console.log("cache : ", cache);
+      console.log("cache data : ", JSON.stringify(cache.data));
       return `${chatCompletion?.choices[0]?.message.content}`; // Assistant message:
     }
 
