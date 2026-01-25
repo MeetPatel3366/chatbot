@@ -74,7 +74,16 @@ export async function generate(userMessage, conversationId) {
     role: "user",
     content: userMessage,
   });
+
+  const MAX_RETRIES=10;
+  let count=0;
+
   while (true) {
+    count++;
+    if(count>MAX_RETRIES)
+    {
+      return "I could not find the result, please try again";
+    }
     //for llm loop for tools calling
     const chatCompletion = await getGroqChatCompletion(messages);
 
